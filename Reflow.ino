@@ -90,6 +90,9 @@ int buttonHoldThresh = 1000;
 int buttonHoldCount = 0;
 bool buttonReady = true;
 
+int stopButtonPin = 8;
+int stopButtonHoldCount = 0;
+bool stopButtonReady = true;
 
 
 // ***** PID CONTROL VARIABLES *****
@@ -160,6 +163,8 @@ void setup() {
   pinMode(buttonPin, INPUT);           // set pin to input
   digitalWrite(buttonPin, HIGH);       // turn on pullup resistors
 
+  pinMode(stopButtonPin, INPUT);           // set pin to input
+  digitalWrite(stopButtonPin, HIGH);       // turn on pullup resistors
 
   lcd.begin(16, 2);
   lcd.print("hello, world!");
@@ -189,10 +194,6 @@ void loop() {
     lcd.print(lcdMessagesReflowStatus[reflowStatus]);
     lcd.print(", ");
     lcd.print(lcdMessagesReflowState[reflowState]);
-
-//    Serial.print("Input: ");
-//    Serial.print(input);
-//    Serial.println("C");
   }
 
   if (millis() > nextCheck){
@@ -403,6 +404,20 @@ void loop() {
     buttonHoldCount = 0;
     buttonReady = true;
   }
+
+  if (!digitalRead(stopButtonPin)){
+    stopButtonHoldCount += 1;
+    if (buttonHoldCount >= buttonHoldThresh){
+        // Turn of SSR and stop reflow
+        reflowStatus = REFLOW_STATUS_OFF;
+        reflowState = REFLOW_STATE_TOO_HOT;
+    }
+  } else{
+    stopButtonHoldCount = 0;
+    stopButtonReady = true;
+  }
+
+  
 
 
 
